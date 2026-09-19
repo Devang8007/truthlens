@@ -63,8 +63,8 @@ export default function Topbar({ user, onMenuToggle }) {
         </Link>
       </div>
 
-      {/* Center: Desktop Search Input */}
-      <div className="hidden sm:flex flex-1 max-w-xs md:max-w-md mx-4">
+      {/* Center: Desktop Search Input (md+ only) */}
+      <div className="hidden md:flex flex-1 max-w-xs md:max-w-md mx-4">
         <form onSubmit={handleSearchSubmit} className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input

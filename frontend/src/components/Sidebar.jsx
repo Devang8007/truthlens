@@ -38,10 +38,12 @@ export default function Sidebar({ user: _user, setUser, isOpen, setIsOpen }) {
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container: Drawer on mobile when isOpen, permanently fixed on desktop */}
       <aside 
-        className={`w-72 sm:w-64 max-w-[85vw] bg-surface border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 select-none shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto'
+        className={`bg-surface border-r border-gray-200 h-screen select-none ${
+          isOpen 
+            ? 'fixed inset-y-0 left-0 w-72 max-w-[85vw] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left duration-200' 
+            : 'hidden lg:flex lg:flex-col lg:fixed lg:left-0 lg:top-0 lg:w-64 lg:shadow-none'
         }`}
       >
         <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
