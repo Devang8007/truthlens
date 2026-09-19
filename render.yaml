@@ -1,0 +1,36 @@
+services:
+  # 1. Node.js Backend API Gateway
+  - type: web
+    name: truthlens-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: AI_SERVICE_URL
+        sync: false
+
+  # 2. Python AI Forensics Microservice
+  - type: web
+    name: truthlens-ai-service
+    env: python
+    plan: free
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: PORT
+        value: 8001
+      - key: GEMINI_API_KEY
+        sync: false

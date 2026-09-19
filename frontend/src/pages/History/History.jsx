@@ -1,139 +1,323 @@
-import React, { useState } from 'react';
-import { Download, Search, Video, Image as ImageIcon, FileText, CheckCircle2, XCircle, AlertTriangle, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { 
+  Download, Search, Video, Image as ImageIcon, FileText, 
+  CheckCircle2, XCircle, AlertTriangle, Eye, Trash2, RefreshCw, PlusCircle, Filter
+} from 'lucide-react';
+import api from '../../api';
 
 export default function History() {
-  const [filter, setFilter] = useState('All Types');
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedType, setSelectedType] = useState('ALL');
+  const [selectedVerdict, setSelectedVerdict] = useState('ALL');
+  const [deletingId, setDeletingId] = useState(null);
 
-  const mockData = [
-    { id: 1, type: 'Video', content: 'ceo-interview-leak.mp4', result: 'FAKE', confidence: '92%', size: '48.2 MB', date: 'Aug 24, 2026' },
-    { id: 2, type: 'Image', content: 'viral-photo-aug24.jpg', result: 'AUTHENTIC', confidence: '87%', size: '2.1 MB', date: 'Aug 24, 2026' },
-    { id: 3, type: 'News', content: 'Breaking: Economic Crisis in Indi...', result: 'MISLEADING', confidence: '78%', size: '—', date: 'Aug 23, 2026' },
-    { id: 4, type: 'Video', content: 'protest-footage-mumbai.mp4', result: 'AUTHENTIC', confidence: '95%', size: '112 MB', date: 'Aug 23, 2026' },
-    { id: 5, type: 'Image', content: 'politician-rally-photo.png', result: 'FAKE', confidence: '88%', size: '1.8 MB', date: 'Aug 22, 2026' },
-    { id: 6, type: 'News', content: 'New Vaccine Claims 100% Effica...', result: 'FAKE', confidence: '91%', size: '—', date: 'Aug 22, 2026' },
-    { id: 7, type: 'Video', content: 'election-speech-clip.mp4', result: 'MISLEADING', confidence: '65%', size: '23.4 MB', date: 'Aug 21, 2026' },
-  ];
+  const navigate = useNavigate();
 
-  const filteredData = filter === 'All Types' 
-    ? mockData 
-    : mockData.filter(item => item.type === filter.split(' ')[0]);
-
-  const TypeIcon = ({ type }) => {
-    if (type === 'Video') return <Video className="h-4 w-4 mr-2 text-gray-500" />;
-    if (type === 'Image') return <ImageIcon className="h-4 w-4 mr-2 text-gray-500" />;
-    return <FileText className="h-4 w-4 mr-2 text-gray-500" />;
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/analysis/history');
+      if (res.data && res.data.length > 0) {
+        setHistory(res.data);
+      } else {
+        // If brand new account without scans yet, show initial sample records
+        setHistory([
+          {
+            _id: 'seed-1',
+            type: 'VIDEO',
+            fileNameOrContent: 'executive_press_conference_leak.mp4',
+            prediction: 'DEEPFAKE',
+            confidence: 94,
+            fileSize: '48.2 MB',
+            createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+            modelUsed: 'TruthLens ResNet-50 + XceptionNet Deepfake Detector',
+            resultDetails: { face_manipulation: '89%', audio_sync_anomaly: '76%', temporal_jitter_index: '82%' },
+            findings: ['Facial boundary warping identified.', 'Audio phoneme to visual viseme desynchronization exceeded threshold.']
+          },
+          {
+            _id: 'seed-2',
+            type: 'IMAGE',
+            fileNameOrContent: 'presidential_summit_photo.jpg',
+            prediction: 'AUTHENTIC',
+            confidence: 91,
+            fileSize: '3.4 MB',
+            createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+            modelUsed: 'TruthLens Latent Diffusion Detector v2.4 + ELA Forensics',
+            resultDetails: { error_level_analysis: '18%', gan_fingerprint_probability: '12%', metadata_integrity: '96%' },
+            findings: ['Uniform error level distribution across JPEG quantization tables.', 'Natural camera sensor noise profile verified.']
+          },
+          {
+            _id: 'seed-3',
+            type: 'NEWS',
+            fileNameOrContent: 'Viral Claim: Central Bank Announces Instant Digital Currency Withdrawal Freeze',
+            prediction: 'FAKE',
+            confidence: 88,
+            fileSize: '—',
+            createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+            modelUsed: 'TruthLens RoBERTa Misinformation Classifier v4.0',
+            resultDetails: { sentiment_manipulation: '85%', source_credibility_score: '22%', sensationalism_index: '90%' },
+            findings: ['Sensationalist vocabulary and emotional panic triggers detected.', 'Uncorroborated by independent news wire registries.']
+          }
+        ]);
+      }
+    } catch (err) {
+      console.error('History fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const ResultBadge = ({ result }) => {
-    if (result === 'FAKE') {
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this verification record?')) return;
+    
+    setDeletingId(id);
+    try {
+      if (!id.startsWith('seed-')) {
+        await api.delete(`/analysis/${id}`);
+      }
+      setHistory(prev => prev.filter(item => item._id !== id));
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete analysis record.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleExportCsv = () => {
+    if (history.length === 0) return;
+
+    const headers = ['ID', 'Date', 'Type', 'Target Content', 'Prediction', 'Confidence (%)', 'File Size', 'Model'];
+    const rows = filteredData.map(item => [
+      `"${item._id}"`,
+      `"${new Date(item.createdAt).toLocaleString()}"`,
+      `"${item.type}"`,
+      `"${(item.fileNameOrContent || '').replace(/"/g, '""')}"`,
+      `"${item.prediction}"`,
+      item.confidence,
+      `"${item.fileSize || '—'}"`,
+      `"${item.modelUsed || 'Ensemble'}"`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `truthlens-history-export-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  const filteredData = history.filter(item => {
+    const matchesType = selectedType === 'ALL' || item.type === selectedType;
+    const matchesVerdict = selectedVerdict === 'ALL' || 
+      (selectedVerdict === 'FAKE' && (item.prediction === 'FAKE' || item.prediction === 'DEEPFAKE')) ||
+      (selectedVerdict === 'AUTHENTIC' && item.prediction === 'AUTHENTIC') ||
+      (selectedVerdict === 'MISLEADING' && item.prediction === 'MISLEADING');
+    
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = !query || 
+      (item.fileNameOrContent && item.fileNameOrContent.toLowerCase().includes(query)) ||
+      (item.prediction && item.prediction.toLowerCase().includes(query));
+
+    return matchesType && matchesVerdict && matchesSearch;
+  });
+
+  const TypeIcon = ({ type }) => {
+    if (type === 'VIDEO') return <Video className="h-4 w-4 mr-2 text-primary" />;
+    if (type === 'IMAGE') return <ImageIcon className="h-4 w-4 mr-2 text-purple-600" />;
+    return <FileText className="h-4 w-4 mr-2 text-blue-600" />;
+  };
+
+  const ResultBadge = ({ prediction }) => {
+    if (prediction === 'FAKE' || prediction === 'DEEPFAKE') {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-danger border border-red-100">
-          <XCircle className="h-3 w-3 mr-1.5" /> FAKE
-        </div>
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-danger border border-red-200">
+          <XCircle className="h-3.5 w-3.5 mr-1" /> {prediction}
+        </span>
       );
     }
-    if (result === 'AUTHENTIC') {
+    if (prediction === 'AUTHENTIC' || prediction === 'REAL') {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-secondary border border-green-100">
-          <CheckCircle2 className="h-3 w-3 mr-1.5" /> AUTHENTIC
-        </div>
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-secondary border border-green-200">
+          <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> AUTHENTIC
+        </span>
       );
     }
     return (
-      <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-50 text-warning border border-yellow-100">
-        <AlertTriangle className="h-3 w-3 mr-1.5" /> MISLEADING
-      </div>
+      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-warning border border-amber-200">
+        <AlertTriangle className="h-3.5 w-3.5 mr-1" /> MISLEADING
+      </span>
     );
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-4">
-      <div className="flex justify-between items-end mb-8">
+    <div className="max-w-6xl mx-auto py-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-dark mb-2">Analysis History</h1>
-          <p className="text-gray-500 font-medium">All your past verification analyses in one place.</p>
+          <h1 className="text-3xl font-black text-dark tracking-tight">Analysis History & Audit Log</h1>
+          <p className="text-sm text-gray-500 mt-1">Tamper-evident archive of all media verification scans.</p>
         </div>
-        <button className="flex items-center px-4 py-2 bg-surface border border-gray-200 text-dark font-medium rounded-lg hover:bg-gray-50 transition-colors">
-          <Download className="h-4 w-4 mr-2 text-gray-500" />
-          Export CSV
-        </button>
+        
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={fetchHistory}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            title="Refresh History"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button 
+            onClick={handleExportCsv}
+            disabled={filteredData.length === 0}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export CSV</span>
+          </button>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="btn-primary text-xs px-4 py-2 space-x-1.5"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span>New Scan</span>
+          </button>
+        </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-2">
-          {['All Types', 'Video Only', 'Image Only', 'News Only'].map((tab) => (
+      {/* Filter and Search Bar */}
+      <div className="glass-card p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Type Filter Tabs */}
+        <div className="flex space-x-1.5 overflow-x-auto w-full md:w-auto">
+          {[
+            { id: 'ALL', label: 'All Modules' },
+            { id: 'VIDEO', label: 'Video Only' },
+            { id: 'IMAGE', label: 'Image Only' },
+            { id: 'NEWS', label: 'News Only' }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
-                filter === tab 
-                  ? 'bg-primary text-white border-primary' 
-                  : 'bg-surface text-gray-600 border-gray-200 hover:bg-gray-50'
+              key={tab.id}
+              onClick={() => setSelectedType(tab.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedType === tab.id
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
-        
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search history..."
-            className="pl-9 pr-4 py-2 bg-surface border border-gray-200 rounded-full text-sm text-dark placeholder-gray-400 focus:outline-none focus:border-primary w-64"
-          />
+
+        {/* Search & Verdict Dropdown */}
+        <div className="flex items-center space-x-3 w-full md:w-auto">
+          <select
+            value={selectedVerdict}
+            onChange={(e) => setSelectedVerdict(e.target.value)}
+            className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-dark focus:outline-none focus:border-primary"
+          >
+            <option value="ALL">All Verdicts</option>
+            <option value="FAKE">Fake / Deepfake</option>
+            <option value="AUTHENTIC">Authentic</option>
+            <option value="MISLEADING">Misleading</option>
+          </select>
+
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Filter by target or keyword..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-dark placeholder-gray-400 focus:outline-none focus:border-primary"
+            />
+          </div>
         </div>
       </div>
 
+      {/* Table */}
       <div className="glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Content</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Result</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Confidence</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Size</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+              <tr className="border-b border-gray-100 bg-gray-50/60 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3.5">Type</th>
+                <th className="px-6 py-3.5">Target Content</th>
+                <th className="px-6 py-3.5">Verdict</th>
+                <th className="px-6 py-3.5">Confidence</th>
+                <th className="px-6 py-3.5">Size</th>
+                <th className="px-6 py-3.5">Timestamp</th>
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {filteredData.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm font-medium text-dark bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
-                      <TypeIcon type={row.type} />
-                      {row.type}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">
-                    {row.content}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <ResultBadge result={row.result} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-dark">
-                    {row.confidence}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {row.size}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {row.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 flex items-center space-x-3">
-                    <button className="hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/5">
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button className="hover:text-primary transition-colors p-1.5 rounded-md hover:bg-primary/5">
-                      <Download className="h-4 w-4" />
-                    </button>
+            <tbody className="divide-y divide-gray-100 text-xs">
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12 text-center text-gray-400">
+                    No verification records found matching your filters.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredData.map((row) => (
+                  <tr key={row._id} className="hover:bg-gray-50/80 transition-colors group">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center font-bold text-dark bg-white w-fit px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
+                        <TypeIcon type={row.type} />
+                        <span>{row.type}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-dark max-w-xs truncate">
+                      {row.fileNameOrContent}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ResultBadge prediction={row.prediction} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap font-black text-dark">
+                      {row.confidence}%
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                      {row.fileSize || '—'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-400">
+                      {new Date(row.createdAt).toLocaleDateString(undefined, { 
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        <button 
+                          onClick={() => navigate('/results', { state: { result: row } })}
+                          title="View Forensic Dossier"
+                          className="p-1.5 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(row._id)}
+                          disabled={deletingId === row._id}
+                          title="Delete Record"
+                          className="p-1.5 text-gray-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

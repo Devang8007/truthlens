@@ -1,0 +1,14 @@
+{
+  "name": "truthlens-enterprise",
+  "version": "2.0.0",
+  "description": "TruthLens Enterprise AI-Powered Media Verification Platform",
+  "scripts": {
+    "dev:backend": "cd backend && npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:ai": "cd ai-service && python app.py",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": ["deepfake", "ai-verification", "fact-checking", "enterprise"],
+  "author": "TruthLens Team",
+  "license": "MIT"
+}

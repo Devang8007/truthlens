@@ -1,101 +1,285 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Video, Image as ImageIcon, FileText, ArrowRight, Database, XCircle, CheckCircle, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  Video, Image as ImageIcon, FileText, ArrowRight, Database, 
+  XCircle, CheckCircle2, TrendingUp, Shield, Sparkles, RefreshCw, Eye
+} from 'lucide-react';
+import api from '../../api';
 
 export default function Dashboard({ user }) {
+  const [stats, setStats] = useState({
+    totalAnalyzed: 0,
+    fakesDetected: 0,
+    authenticCount: 0,
+    fakePercentage: '0.0',
+    averageConfidence: '94.7',
+    byType: { VIDEO: 0, IMAGE: 0, NEWS: 0 },
+    recentAnalyses: []
+  });
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/analysis/stats');
+      if (res.data) {
+        setStats(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard stats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const ResultBadge = ({ prediction }) => {
+    if (prediction === 'FAKE' || prediction === 'DEEPFAKE') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-danger border border-red-200">
+          <XCircle className="h-3 w-3 mr-1" /> {prediction}
+        </span>
+      );
+    }
+    if (prediction === 'AUTHENTIC' || prediction === 'REAL') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-green-50 text-secondary border border-green-200">
+          <CheckCircle2 className="h-3 w-3 mr-1" /> AUTHENTIC
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-warning border border-amber-200">
+        MISLEADING
+      </span>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-4">
-      <div className="mb-10 animate-in fade-in slide-in-from-bottom-4">
-        <h1 className="text-3xl font-bold text-dark mb-2">Good morning, {user?.username || 'Devang'} 👋</h1>
-        <p className="text-gray-500 font-medium">Here's your verification overview for today.</p>
+      {/* Greeting Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-2">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Forensic Operations Command</span>
+          </div>
+          <h1 className="text-3xl font-black text-dark tracking-tight">
+            Welcome back, {user?.username || 'Investigator'} 👋
+          </h1>
+          <p className="text-sm text-gray-500 font-medium mt-0.5">
+            Real-time media verification metrics and deep learning analysis pipelines.
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={fetchStats}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            title="Refresh Analytics"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Sync Stats</span>
+          </button>
+          <Link to="/history" className="btn-secondary text-xs px-4 py-2">
+            Audit Archive
+          </Link>
+        </div>
       </div>
 
+      {/* Module Quick Launch Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {/* Video Module */}
-        <Link to="/modules/video" className="group glass-card p-6 flex flex-col h-full hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-          <div className="p-3 bg-primary/10 rounded-xl text-primary w-fit mb-5">
-            <Video className="h-6 w-6" />
+        <Link 
+          to="/modules/video" 
+          className="group glass-card-hover p-6 flex flex-col h-full hover:border-primary/50 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <div className="p-3 bg-primary/10 rounded-2xl text-primary w-fit shadow-xs">
+              <Video className="h-6 w-6" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              Neural Face Tracker
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-dark mb-2">Deepfake Video Detection</h2>
-          <p className="text-gray-500 text-sm mb-6 flex-grow">Upload a video file for AI-powered deepfake analysis</p>
-          <div className="flex items-center text-primary font-medium text-sm group-hover:gap-1.5 transition-all">
-            Start Analysis <ArrowRight className="h-4 w-4 ml-1" />
+          <h2 className="text-lg font-bold text-dark mb-1.5 group-hover:text-primary transition-colors">
+            Deepfake Video Detection
+          </h2>
+          <p className="text-gray-500 text-xs mb-6 flex-grow leading-relaxed">
+            Upload footage for temporal landmark jitter, audio viseme desync, and GAN artifact scanning.
+          </p>
+          <div className="flex items-center text-primary font-bold text-xs group-hover:translate-x-1 transition-transform">
+            <span>Launch Video Scanner</span> <ArrowRight className="h-4 w-4 ml-1.5" />
           </div>
         </Link>
 
         {/* Image Module */}
-        <Link to="/modules/image" className="group glass-card p-6 flex flex-col h-full hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-          <div className="p-3 bg-purple-100 rounded-xl text-purple-600 w-fit mb-5">
-            <ImageIcon className="h-6 w-6" />
+        <Link 
+          to="/modules/image" 
+          className="group glass-card-hover p-6 flex flex-col h-full hover:border-purple-300 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <div className="p-3 bg-purple-50 rounded-2xl text-purple-600 w-fit shadow-xs">
+              <ImageIcon className="h-6 w-6" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+              ELA + Diffusion
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-dark mb-2">AI Image Analysis</h2>
-          <p className="text-gray-500 text-sm mb-6 flex-grow">Detect AI-generated or manipulated images instantly</p>
-          <div className="flex items-center text-purple-600 font-medium text-sm group-hover:gap-1.5 transition-all">
-            Start Analysis <ArrowRight className="h-4 w-4 ml-1" />
+          <h2 className="text-lg font-bold text-dark mb-1.5 group-hover:text-purple-600 transition-colors">
+            AI Image Forensics
+          </h2>
+          <p className="text-gray-500 text-xs mb-6 flex-grow leading-relaxed">
+            Inspect photos with Error Level Analysis (ELA) and identify Midjourney or Stable Diffusion latent fingerprints.
+          </p>
+          <div className="flex items-center text-purple-600 font-bold text-xs group-hover:translate-x-1 transition-transform">
+            <span>Launch Image Scanner</span> <ArrowRight className="h-4 w-4 ml-1.5" />
           </div>
         </Link>
 
         {/* News Module */}
-        <Link to="/modules/news" className="group glass-card p-6 flex flex-col h-full hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-          <div className="p-3 bg-blue-100 rounded-xl text-blue-600 w-fit mb-5">
-            <FileText className="h-6 w-6" />
+        <Link 
+          to="/modules/news" 
+          className="group glass-card-hover p-6 flex flex-col h-full hover:border-blue-300 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <div className="p-3 bg-blue-50 rounded-2xl text-blue-600 w-fit shadow-xs">
+              <FileText className="h-6 w-6" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+              NLP Fact Check
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-dark mb-2">Fake News Verification</h2>
-          <p className="text-gray-500 text-sm mb-6 flex-grow">Cross-reference articles against trusted fact sources</p>
-          <div className="flex items-center text-blue-600 font-medium text-sm group-hover:gap-1.5 transition-all">
-            Start Analysis <ArrowRight className="h-4 w-4 ml-1" />
+          <h2 className="text-lg font-bold text-dark mb-1.5 group-hover:text-blue-600 transition-colors">
+            Fake News Verification
+          </h2>
+          <p className="text-gray-500 text-xs mb-6 flex-grow leading-relaxed">
+            Cross-reference claim excerpts against 50+ wire agencies and calculate sensationalism & bias indicators.
+          </p>
+          <div className="flex items-center text-blue-600 font-bold text-xs group-hover:translate-x-1 transition-transform">
+            <span>Launch Fact-Checker</span> <ArrowRight className="h-4 w-4 ml-1.5" />
           </div>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div className="glass-card p-6">
-          <div className="p-2 bg-gray-100 rounded-lg text-gray-500 w-fit mb-4">
-            <Database className="h-5 w-5" />
+      {/* Analytics KPI Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Scans Run</span>
+            <div className="p-2 bg-gray-100 rounded-xl text-gray-600">
+              <Database className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl font-bold text-dark mb-1">1,247</div>
-          <p className="text-sm font-medium text-gray-600 mb-1">Total Analyzed</p>
-          <p className="text-xs text-gray-400">+23 today</p>
+          <div className="text-3xl font-black text-dark tracking-tight mb-1">
+            {stats.totalAnalyzed}
+          </div>
+          <p className="text-xs text-gray-500">
+            {stats.byType?.VIDEO || 0} Video · {stats.byType?.IMAGE || 0} Image · {stats.byType?.NEWS || 0} News
+          </p>
         </div>
 
-        <div className="glass-card p-6">
-          <div className="p-2 bg-red-50 rounded-lg text-danger w-fit mb-4">
-            <XCircle className="h-5 w-5" />
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Fakes Intercepted</span>
+            <div className="p-2 bg-red-50 rounded-xl text-danger">
+              <XCircle className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl font-bold text-dark mb-1">389</div>
-          <p className="text-sm font-medium text-gray-600 mb-1">Fakes Detected</p>
-          <p className="text-xs text-gray-400">31.2% of total</p>
+          <div className="text-3xl font-black text-danger tracking-tight mb-1">
+            {stats.fakesDetected}
+          </div>
+          <p className="text-xs text-gray-500">
+            {stats.fakePercentage}% of processed media
+          </p>
         </div>
 
-        <div className="glass-card p-6">
-          <div className="p-2 bg-green-50 rounded-lg text-secondary w-fit mb-4">
-            <CheckCircle className="h-5 w-5" />
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Verified Authentic</span>
+            <div className="p-2 bg-green-50 rounded-xl text-secondary">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl font-bold text-dark mb-1">858</div>
-          <p className="text-sm font-medium text-gray-600 mb-1">Authentic</p>
-          <p className="text-xs text-gray-400">68.8% of total</p>
+          <div className="text-3xl font-black text-secondary tracking-tight mb-1">
+            {stats.authenticCount}
+          </div>
+          <p className="text-xs text-gray-500">
+            Natural sensor / verified attribution
+          </p>
         </div>
 
-        <div className="glass-card p-6">
-          <div className="p-2 bg-blue-50 rounded-lg text-primary w-fit mb-4">
-            <TrendingUp className="h-5 w-5" />
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Model Precision</span>
+            <div className="p-2 bg-blue-50 rounded-xl text-primary">
+              <TrendingUp className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-3xl font-bold text-dark mb-1">94.7%</div>
-          <p className="text-sm font-medium text-gray-600 mb-1">Avg. Accuracy</p>
-          <p className="text-xs text-gray-400">+0.3% this week</p>
+          <div className="text-3xl font-black text-primary tracking-tight mb-1">
+            {stats.averageConfidence}%
+          </div>
+          <p className="text-xs text-gray-500">
+            Ensemble confidence index
+          </p>
         </div>
       </div>
 
+      {/* Recent Analyses Activity Card */}
       <div className="glass-card p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-bold text-dark">Recent Analyses</h3>
-          <Link to="/history" className="text-sm font-medium text-primary flex items-center hover:underline">
-            View all <ArrowRight className="h-4 w-4 ml-1" />
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+          <div>
+            <h3 className="text-base font-bold text-dark">Recent Forensic Verifications</h3>
+            <p className="text-xs text-gray-400">Latest analyses recorded in your telemetry ledger</p>
+          </div>
+          <Link to="/history" className="text-xs font-bold text-primary flex items-center hover:underline">
+            View Complete Archive <ArrowRight className="h-3.5 w-3.5 ml-1" />
           </Link>
         </div>
-        <div className="text-center py-8 text-gray-500 text-sm">
-          No recent analyses to show.
-        </div>
+
+        {stats.recentAnalyses && stats.recentAnalyses.length > 0 ? (
+          <div className="divide-y divide-gray-100">
+            {stats.recentAnalyses.map((item) => (
+              <div 
+                key={item._id} 
+                className="py-3.5 flex items-center justify-between hover:bg-gray-50/60 px-3 rounded-xl transition-colors"
+              >
+                <div className="flex items-center space-x-3 min-w-0 pr-4">
+                  <span className="text-xs font-bold px-2 py-1 bg-gray-100 text-gray-600 rounded-md">
+                    {item.type}
+                  </span>
+                  <p className="text-xs font-semibold text-dark truncate">
+                    {item.fileNameOrContent}
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-4 shrink-0">
+                  <ResultBadge prediction={item.prediction} />
+                  <span className="text-xs font-black text-dark w-10 text-right">
+                    {item.confidence}%
+                  </span>
+                  <button
+                    onClick={() => navigate('/results', { state: { result: item } })}
+                    className="p-1 text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                    title="View Dossier"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-400 text-xs">
+            <Shield className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+            <p className="font-semibold text-gray-600 mb-1">No Verification Runs Yet</p>
+            <p>Upload a video, image, or text above to run your first automated forensic check.</p>
+          </div>
+        )}
       </div>
     </div>
   );

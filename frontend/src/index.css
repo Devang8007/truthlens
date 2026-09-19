@@ -4,23 +4,59 @@
 @layer base {
   body {
     @apply bg-background text-dark font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F1F5F9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-surface border border-gray-200 rounded-2xl shadow-sm;
+    @apply bg-surface border border-gray-200 rounded-2xl shadow-sm transition-all duration-200;
   }
   
+  .glass-card-hover {
+    @apply bg-surface border border-gray-200 rounded-2xl shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300;
+  }
+
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 shadow-md shadow-primary/20;
+    @apply bg-primary hover:bg-primary-dark text-white font-medium py-2.5 px-6 rounded-xl transition-all duration-200 shadow-md shadow-primary/20 flex items-center justify-center hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
   }
 
   .btn-secondary {
-    @apply bg-surface hover:bg-gray-50 text-dark font-medium py-2 px-6 rounded-lg transition-all duration-200 border border-gray-200;
+    @apply bg-surface hover:bg-gray-50 text-dark font-medium py-2.5 px-6 rounded-xl transition-all duration-200 border border-gray-200 shadow-sm flex items-center justify-center hover:border-gray-300 active:scale-[0.99] cursor-pointer;
   }
   
   .input-field {
-    @apply w-full bg-surface border border-gray-200 rounded-lg px-4 py-3 text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+    @apply w-full bg-surface border border-gray-200 rounded-xl px-4 py-3 text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all;
+  }
+}
+
+@media print {
+  aside, header, nav, button {
+    display: none !important;
+  }
+  body, main {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .glass-card {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
   }
 }

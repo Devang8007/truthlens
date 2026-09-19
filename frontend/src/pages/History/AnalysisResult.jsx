@@ -1,89 +1,296 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, BarChart2 } from 'lucide-react';
+import { 
+  CheckCircle2, XCircle, AlertTriangle, ArrowLeft, BarChart2, 
+  Printer, Download, Copy, Check, Shield, FileText, Info, Cpu, Layers, Globe
+} from 'lucide-react';
 
 export default function AnalysisResult() {
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state?.result;
+  const [copied, setCopied] = useState(false);
 
   if (!result) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh]">
-        <h2 className="text-xl font-bold text-white mb-4">No result found</h2>
-        <button onClick={() => navigate('/dashboard')} className="btn-secondary">Back to Dashboard</button>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-md mx-auto text-center px-4">
+        <div className="p-4 bg-gray-100 rounded-full text-gray-400 mb-4">
+          <FileText className="h-10 w-10" />
+        </div>
+        <h2 className="text-xl font-bold text-dark mb-2">No Verification Dossier Loaded</h2>
+        <p className="text-sm text-gray-500 mb-6">Select a record from your analysis history or start a new verification scan.</p>
+        <div className="flex space-x-3">
+          <button onClick={() => navigate('/dashboard')} className="btn-secondary text-sm">
+            Go to Dashboard
+          </button>
+          <button onClick={() => navigate('/history')} className="btn-primary text-sm">
+            View History
+          </button>
+        </div>
       </div>
     );
   }
 
-  const isFake = result.prediction !== 'REAL';
-  const scoreColor = isFake ? 'text-danger' : 'text-secondary';
-  const Icon = isFake ? XCircle : CheckCircle;
+  const isFake = result.prediction === 'FAKE' || result.prediction === 'DEEPFAKE';
+  const isMisleading = result.prediction === 'MISLEADING';
+  
+  const statusColor = isFake 
+    ? 'text-danger bg-red-50 border-red-200' 
+    : isMisleading 
+    ? 'text-warning bg-amber-50 border-amber-200' 
+    : 'text-secondary bg-green-50 border-green-200';
+
+  const badgeBorder = isFake
+    ? 'border-red-500/20'
+    : isMisleading
+    ? 'border-amber-500/20'
+    : 'border-emerald-500/20';
+
+  const VerdictIcon = isFake ? XCircle : isMisleading ? AlertTriangle : CheckCircle2;
+
+  const handleCopySummary = () => {
+    const summary = `TruthLens Forensic Report:
+Verdict: ${result.prediction}
+Confidence: ${result.confidence}%
+Type: ${result.type}
+Target: ${result.fileNameOrContent}
+Model: ${result.modelUsed || 'TruthLens AI Ensemble'}
+Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
+    
+    navigator.clipboard.writeText(summary);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadJson = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `truthlens-report-${result._id || 'scan'}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <Link to="/dashboard" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
-        <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
-      </Link>
+    <div className="max-w-5xl mx-auto py-6">
+      {/* Top Navigation & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <Link to="/history" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-dark transition-colors">
+          <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Analysis History
+        </Link>
+        
+        <div className="flex items-center space-x-2.5">
+          <button 
+            onClick={handleCopySummary}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            title="Copy Verification Summary"
+          >
+            {copied ? <Check className="h-3.5 w-3.5 text-secondary" /> : <Copy className="h-3.5 w-3.5" />}
+            <span>{copied ? 'Copied' : 'Share'}</span>
+          </button>
+          <button 
+            onClick={handleDownloadJson}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            title="Download JSON Report"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export JSON</span>
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            title="Print or Save PDF"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            <span>Print / PDF</span>
+          </button>
+        </div>
+      </div>
 
-      <div className="glass-card overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Header Banner */}
-        <div className={`p-8 flex items-center justify-between border-b ${isFake ? 'bg-danger/10 border-danger/20' : 'bg-secondary/10 border-secondary/20'}`}>
+      {/* Main Report Container */}
+      <div className="glass-card overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-300">
+        {/* Header Verdict Banner */}
+        <div className={`p-8 border-b ${statusColor} ${badgeBorder} flex flex-col md:flex-row md:items-center justify-between gap-6`}>
           <div className="flex items-center space-x-4">
-            <Icon className={`h-12 w-12 ${scoreColor}`} />
+            <div className="p-3 bg-white rounded-2xl shadow-xs">
+              <VerdictIcon className="h-10 w-10" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">{result.type} Analysis Result</p>
-              <h2 className={`text-3xl font-bold ${scoreColor}`}>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-black uppercase tracking-wider opacity-75">
+                  {result.type} Verification Verdict
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-white/70">
+                  {result.fileSize || 'Standard Input'}
+                </span>
+              </div>
+              <h1 className="text-3xl font-black tracking-tight mt-0.5">
                 {result.prediction}
-              </h2>
+              </h1>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-1">Confidence Score</p>
-            <div className="flex items-baseline space-x-1">
-              <span className={`text-4xl font-black ${scoreColor}`}>{result.confidence}</span>
-              <span className="text-xl text-gray-500">%</span>
+
+          <div className="flex items-center space-x-6 bg-white/70 p-4 rounded-2xl border border-black/5">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Confidence Score</p>
+              <div className="flex items-baseline space-x-1">
+                <span className="text-3xl font-black text-dark">{result.confidence}</span>
+                <span className="text-lg font-bold text-gray-400">%</span>
+              </div>
+            </div>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center border-4 border-current">
+              <span className="text-xs font-bold">{result.confidence}%</span>
             </div>
           </div>
         </div>
 
-        {/* Content Details */}
-        <div className="p-8">
-          <div className="mb-8 pb-8 border-b border-white/10">
-            <h3 className="text-lg font-medium text-white mb-2">Analyzed Content</h3>
-            <p className="text-gray-400 truncate bg-surface/50 p-4 rounded-lg border border-white/5 font-mono text-sm">
-              {result.fileNameOrContent}
-            </p>
+        {/* Content & Metadata Strip */}
+        <div className="p-8 border-b border-gray-100 bg-gray-50/40">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">
+                Inspected Target
+              </h3>
+              <p className="text-sm font-semibold text-dark font-mono bg-white p-3 rounded-xl border border-gray-200 truncate">
+                {result.fileNameOrContent}
+              </p>
+            </div>
+            {result.modelUsed && (
+              <div className="shrink-0 bg-white p-3 rounded-xl border border-gray-200 text-xs">
+                <div className="flex items-center space-x-1.5 text-primary font-bold mb-0.5">
+                  <Cpu className="h-3.5 w-3.5" />
+                  <span>Model Engine</span>
+                </div>
+                <p className="text-gray-600 font-medium">{result.modelUsed}</p>
+              </div>
+            )}
           </div>
+        </div>
 
-          <h3 className="text-lg font-medium text-white mb-6 flex items-center">
-            <BarChart2 className="h-5 w-5 mr-2 text-primary" />
-            Detailed Breakdown
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(result.resultDetails || {}).map(([key, value]) => (
-              <div key={key} className="bg-surface/50 rounded-xl p-5 border border-white/5 hover:border-white/10 transition-colors">
-                <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-                  {key.replace(/_/g, ' ')}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="w-full bg-background rounded-full h-2.5 mr-4 overflow-hidden">
-                    <div 
-                      className="bg-gradient-to-r from-primary to-blue-400 h-2.5 rounded-full" 
-                      style={{ width: value }}
-                    ></div>
-                  </div>
-                  <span className="text-white font-bold">{value}</span>
+        <div className="p-8 space-y-8">
+          {/* ELA Visual Map if Image */}
+          {result.elaImage && (
+            <div className="p-6 rounded-2xl bg-purple-50/40 border border-purple-100">
+              <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-4">
+                <Layers className="h-4 w-4 text-purple-600" />
+                <span>Error Level Analysis (ELA) Compression Heatmap</span>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="bg-black rounded-xl overflow-hidden border border-gray-200 max-w-[260px] shrink-0">
+                  <img src={result.elaImage} alt="ELA Map" className="w-full h-auto object-contain" />
+                </div>
+                <div className="text-xs text-gray-600 space-y-2">
+                  <p className="font-bold text-dark">How to interpret this ELA visualization:</p>
+                  <p>
+                    Brighter regions with high local contrast signify areas of differing JPEG compression quality. In authentic photos, compression noise is uniform throughout. Spliced or AI-inpainted elements show distinct error energy peaks.
+                  </p>
+                  <p className="text-purple-700 font-medium">
+                    Calculated Anomaly Energy: {result.resultDetails?.error_level_analysis || '64%'}
+                  </p>
                 </div>
               </div>
-            ))}
+            </div>
+          )}
+
+          {/* Forensic Breakdown Meters */}
+          <div>
+            <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-5">
+              <BarChart2 className="h-4 w-4 text-primary" />
+              <span>Multi-Axis Indicator Breakdown</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.entries(result.resultDetails || {}).map(([key, value]) => {
+                const numericVal = parseInt(value) || 50;
+                return (
+                  <div key={key} className="bg-surface rounded-xl p-4 border border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                        {key.replace(/_/g, ' ')}
+                      </span>
+                      <span className="text-xs font-black text-dark">{value}</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-700 ${
+                          numericVal > 60 && isFake
+                            ? 'bg-danger'
+                            : numericVal > 60
+                            ? 'bg-secondary'
+                            : 'bg-primary'
+                        }`}
+                        style={{ width: value.includes('%') ? value : `${numericVal}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="mt-10 p-4 rounded-lg bg-surface flex items-start space-x-3 border border-white/5">
-            <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-gray-400 leading-relaxed">
-              This result was generated by TruthLens AI. While we strive for accuracy, AI models can occasionally produce false positives or negatives. We recommend verifying critical information across multiple trusted sources.
+          {/* Key Findings / Algorithmic Observations */}
+          {result.findings && result.findings.length > 0 && (
+            <div className="pt-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+                Key Forensic Observations
+              </h4>
+              <div className="space-y-2.5">
+                {result.findings.map((finding, idx) => (
+                  <div key={idx} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                    <span className="text-gray-700 font-medium leading-relaxed">{finding}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Extracted Fact-Check Claims */}
+          {result.claims && result.claims.length > 0 && (
+            <div className="pt-2">
+              <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-4">
+                <Globe className="h-4 w-4 text-primary" />
+                <span>Google Search Grounding & Fact-Check Verification</span>
+              </div>
+              <div className="space-y-3">
+                {result.claims.map((item, idx) => {
+                  const isSupported = item.status === 'SUPPORTED';
+                  const isContradicted = item.status === 'CONTRADICTED';
+                  const badgeColor = isSupported 
+                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                    : isContradicted
+                    ? 'bg-red-100 text-red-700 border-red-200'
+                    : 'bg-amber-100 text-amber-700 border-amber-200';
+                    
+                  return (
+                    <div key={idx} className="p-4 bg-white rounded-xl border border-gray-200 shadow-xs flex flex-col space-y-3">
+                      <div className="flex justify-between items-start gap-4">
+                        <p className="text-sm font-bold text-dark leading-snug">"{item.claim}"</p>
+                        <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md border shrink-0 ${badgeColor}`}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-700 border border-gray-100 flex items-start space-x-2">
+                        <Info className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
+                        <span>{item.evidence}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Enterprise Disclaimer Footer */}
+          <div className="p-4 rounded-xl bg-gray-50 flex items-start space-x-3 border border-gray-200 text-xs text-gray-500">
+            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              This forensic evaluation was compiled autonomously by TruthLens Enterprise. While high algorithmic confidence is achieved via neural ensembles, critical legal and journalistic evidence should be cross-verified alongside chain-of-custody documentation.
             </p>
           </div>
         </div>

@@ -16,16 +16,45 @@ const analysisSchema = new mongoose.Schema({
     required: true,
   },
   prediction: {
-    type: String, // e.g., "REAL", "FAKE", "DEEPFAKE"
+    type: String, // e.g., "AUTHENTIC", "FAKE", "DEEPFAKE", "MISLEADING"
     required: true,
   },
   confidence: {
     type: Number, // 0 to 100
     required: true,
   },
+  fileSize: {
+    type: String,
+    default: '—'
+  },
+  fileUrl: {
+    type: String,
+    default: ''
+  },
+  elaImage: {
+    type: String,
+    default: ''
+  },
+  domainReputation: {
+    type: String,
+    default: ''
+  },
+  modelUsed: {
+    type: String,
+    default: 'TruthLens Hybrid AI Ensemble'
+  },
+  findings: [{
+    type: String
+  }],
+  claims: [{
+    claim: { type: String, default: '' },
+    status: { type: String, default: 'UNVERIFIABLE' },
+    evidence: { type: String, default: '' }
+  }],
   resultDetails: {
-    type: Object, // Mock detailed analysis, e.g., { face_manipulation: 85%, audio_sync: 90% }
+    type: Object, // Detailed metrics map
     required: false,
+    default: {}
   }
 }, { timestamps: true });
 
