@@ -69,6 +69,8 @@ function App() {
           <Route path="/modules/video" element={<ProtectedRoute><VideoModule /></ProtectedRoute>} />
           <Route path="/modules/image" element={<ProtectedRoute><ImageModule /></ProtectedRoute>} />
           <Route path="/modules/news" element={<ProtectedRoute><NewsModule /></ProtectedRoute>} />
+          <Route path="/detection" element={<Navigate to="/modules/video" replace />} />
+          <Route path="/modules" element={<Navigate to="/modules/video" replace />} />
           <Route path="/results" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings user={user} setUser={setUser} /></ProtectedRoute>} />

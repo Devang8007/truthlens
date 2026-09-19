@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, Bell, CheckCircle2, AlertTriangle, ShieldCheck, X, Menu } from 'lucide-react';
+import { Search, Bell, CheckCircle2, AlertTriangle, ShieldCheck, X, Menu, Shield } from 'lucide-react';
 
 export default function Topbar({ user, onMenuToggle }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/history?search=${encodeURIComponent(searchTerm.trim())}`);
+      setMobileSearchOpen(false);
     }
   };
 
@@ -42,31 +44,50 @@ export default function Topbar({ user, onMenuToggle }) {
   ];
 
   return (
-    <header className="h-16 sm:h-18 bg-surface border-b border-gray-200 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 sticky top-0 z-20">
-      {/* Mobile Hamburger + Search Bar */}
-      <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0 mr-3">
+    <header className="h-16 sm:h-18 bg-surface border-b border-gray-200 flex items-center justify-between px-3 sm:px-6 lg:px-8 sticky top-0 z-30">
+      {/* Left: Mobile Drawer Trigger + Brand Logo */}
+      <div className="flex items-center space-x-2 shrink-0">
         <button
           onClick={onMenuToggle}
           aria-label="Toggle navigation menu"
-          className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-dark hover:bg-gray-100 transition-colors shrink-0 cursor-pointer"
+          className="lg:hidden p-2 -ml-1 rounded-xl text-gray-600 hover:text-dark hover:bg-gray-100 transition-colors shrink-0 cursor-pointer"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-xs sm:max-w-md">
+        <Link to="/dashboard" className="lg:hidden flex items-center space-x-1.5 shrink-0">
+          <div className="bg-primary p-1.5 rounded-lg text-white shadow-xs">
+            <Shield className="h-4 w-4" />
+          </div>
+          <span className="font-extrabold text-sm sm:text-base text-dark tracking-tight">TruthLens</span>
+        </Link>
+      </div>
+
+      {/* Center: Desktop Search Input */}
+      <div className="hidden sm:flex flex-1 max-w-xs md:max-w-md mx-4">
+        <form onSubmit={handleSearchSubmit} className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search past analyses..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </form>
       </div>
 
-      {/* Right Actions: Notifications + Profile */}
-      <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
+      {/* Right Actions: Mobile Search Toggle + Notifications + Profile */}
+      <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+        {/* Mobile Search Button (< sm) */}
+        <button
+          onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+          aria-label="Search"
+          className="sm:hidden p-2 rounded-xl text-gray-500 hover:text-dark hover:bg-gray-100 transition-colors"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+
         {/* Notification Bell */}
         <div className="relative">
           <button 
@@ -113,17 +134,41 @@ export default function Topbar({ user, onMenuToggle }) {
         {/* User Profile Pill */}
         <Link 
           to="/settings" 
-          className="flex items-center space-x-2.5 border-l border-gray-200 pl-2.5 sm:pl-4 hover:opacity-80 transition-opacity"
+          className="flex items-center space-x-2 pl-1 sm:pl-3 border-l border-gray-200 hover:opacity-80 transition-opacity"
         >
           <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-xs shadow-primary/30 shrink-0">
             {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
           </div>
-          <div className="hidden sm:block text-left">
+          <div className="hidden md:block text-left">
             <p className="text-xs font-bold text-dark leading-none truncate max-w-[110px]">{user?.username || 'Analyst'}</p>
             <p className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[110px]">{user?.role || 'Senior Researcher'}</p>
           </div>
         </Link>
       </div>
+
+      {/* Mobile Search Overlay (< sm) */}
+      {mobileSearchOpen && (
+        <div className="sm:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 p-3 shadow-md z-30 animate-in slide-in-from-top-2 duration-150">
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              autoFocus
+              placeholder="Search past analyses..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-9 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-dark placeholder-gray-400 focus:outline-none focus:border-primary"
+            />
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen(false)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-dark"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
+      )}
     </header>
   );
 }

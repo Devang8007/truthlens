@@ -84,10 +84,10 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           <ArrowLeft className="h-4 w-4 mr-1.5 shrink-0" /> Back to Analysis History
         </Link>
         
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button 
             onClick={handleCopySummary}
-            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
+            className="btn-secondary text-xs !px-3 !py-1.5 sm:!px-3.5 sm:!py-2 space-x-1.5 flex-1 sm:flex-initial justify-center"
             title="Copy Verification Summary"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-secondary" /> : <Copy className="h-3.5 w-3.5" />}
@@ -95,7 +95,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           </button>
           <button 
             onClick={handleDownloadJson}
-            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
+            className="btn-secondary text-xs !px-3 !py-1.5 sm:!px-3.5 sm:!py-2 space-x-1.5 flex-1 sm:flex-initial justify-center"
             title="Download JSON Report"
           >
             <Download className="h-3.5 w-3.5" />
@@ -103,7 +103,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           </button>
           <button 
             onClick={handlePrint}
-            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
+            className="btn-secondary text-xs !px-3 !py-1.5 sm:!px-3.5 sm:!py-2 space-x-1.5 flex-1 sm:flex-initial justify-center"
             title="Print or Save PDF"
           >
             <Printer className="h-3.5 w-3.5" />
@@ -135,7 +135,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 sm:space-x-6 bg-white/70 p-3 sm:p-4 rounded-2xl border border-black/5 self-start md:self-auto">
+          <div className="flex items-center space-x-4 sm:space-x-6 bg-white/80 p-3 sm:p-4 rounded-2xl border border-black/5 w-full md:w-auto justify-between md:justify-start">
             <div>
               <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-gray-500">Confidence Score</p>
               <div className="flex items-baseline space-x-1">
@@ -285,6 +285,25 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
               </div>
             </div>
           )}
+
+          {/* Quick Action to Run Another Scan */}
+          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/15">
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-dark">Need to inspect another file or claim?</h4>
+              <p className="text-[11px] text-gray-500">Launch a fresh deepfake, AI image, or news verification scan.</p>
+            </div>
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Link to="/modules/video" className="btn-secondary text-xs !px-3 !py-2 flex-1 sm:flex-initial justify-center">
+                Video
+              </Link>
+              <Link to="/modules/image" className="btn-secondary text-xs !px-3 !py-2 flex-1 sm:flex-initial justify-center">
+                Image
+              </Link>
+              <Link to="/modules/news" className="btn-primary text-xs !px-3 !py-2 flex-1 sm:flex-initial justify-center">
+                News
+              </Link>
+            </div>
+          </div>
 
           {/* Enterprise Disclaimer Footer */}
           <div className="p-3.5 sm:p-4 rounded-xl bg-gray-50 flex items-start space-x-3 border border-gray-200 text-xs text-gray-500">

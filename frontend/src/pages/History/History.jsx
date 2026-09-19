@@ -257,7 +257,11 @@ export default function History() {
           </div>
         ) : (
           filteredData.map((item) => (
-            <div key={item._id} className="glass-card p-4 space-y-3">
+            <div 
+              key={item._id} 
+              onClick={() => navigate('/results', { state: { result: item } })}
+              className="glass-card p-4 space-y-3 cursor-pointer hover:border-primary/40 active:bg-gray-50 transition-all"
+            >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center font-bold text-xs text-dark bg-gray-50 px-2 py-1 rounded-lg border border-gray-200">
                   <TypeIcon type={item.type} />
@@ -280,14 +284,20 @@ export default function History() {
                 <span className="text-[11px] text-gray-400">{item.fileSize || 'Standard Input'}</span>
                 <div className="flex items-center space-x-1.5">
                   <button
-                    onClick={() => navigate('/results', { state: { result: item } })}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/results', { state: { result: item } });
+                    }}
                     className="p-1.5 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center space-x-1 text-xs font-semibold cursor-pointer"
                   >
                     <Eye className="h-3.5 w-3.5" />
                     <span>Dossier</span>
                   </button>
                   <button
-                    onClick={() => handleDelete(item._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item._id);
+                    }}
                     disabled={deletingId === item._id}
                     className="p-1.5 text-gray-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-colors cursor-pointer"
                   >

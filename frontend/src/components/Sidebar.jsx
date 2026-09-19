@@ -33,36 +33,36 @@ export default function Sidebar({ user: _user, setUser, isOpen, setIsOpen }) {
       {isOpen && (
         <div 
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-dark/50 backdrop-blur-xs z-40 lg:hidden transition-opacity animate-in fade-in duration-200"
+          className="fixed inset-0 bg-dark/60 backdrop-blur-xs z-50 lg:hidden transition-opacity duration-300 animate-in fade-in"
           aria-hidden="true"
         />
       )}
 
       {/* Sidebar Container */}
       <aside 
-        className={`w-64 bg-surface border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 select-none shadow-xl lg:shadow-none transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`w-72 sm:w-64 max-w-[85vw] bg-surface border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 select-none shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto'
         }`}
       >
-        <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
           <NavLink 
             to="/dashboard" 
             onClick={handleNavClick}
-            className="flex items-center space-x-3 group"
+            className="flex items-center space-x-2.5 sm:space-x-3 group"
           >
-            <div className="bg-primary p-2.5 rounded-xl shadow-xs shadow-primary/30 group-hover:scale-105 transition-transform">
-              <Shield className="h-6 w-6 text-white" />
+            <div className="bg-primary p-2 sm:p-2.5 rounded-xl shadow-xs shadow-primary/30 group-hover:scale-105 transition-transform">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-black text-dark tracking-tight leading-tight">TruthLens</span>
-              <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Forensics Portal</span>
+              <span className="text-lg sm:text-xl font-black text-dark tracking-tight leading-tight">TruthLens</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-primary uppercase tracking-wider">Forensics Portal</span>
             </div>
           </NavLink>
 
           {/* Close button on mobile */}
           <button
             onClick={() => setIsOpen(false)}
-            aria-label="Close sidebar"
+            aria-label="Close navigation"
             className="p-1.5 rounded-lg text-gray-400 hover:text-dark hover:bg-gray-100 lg:hidden cursor-pointer"
           >
             <X className="h-5 w-5" />
