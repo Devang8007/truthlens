@@ -102,7 +102,7 @@ export default function Sidebar({ user: _user, setUser, isOpen, setIsOpen }) {
                       <span>{item.name}</span>
                     </div>
                     {item.badge && !isActive && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 shrink-0 whitespace-nowrap ml-2">
                         {item.badge}
                       </span>
                     )}
