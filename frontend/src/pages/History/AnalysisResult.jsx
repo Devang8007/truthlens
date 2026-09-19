@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { 
   CheckCircle2, XCircle, AlertTriangle, ArrowLeft, BarChart2, 
-  Printer, Download, Copy, Check, Shield, FileText, Info, Cpu, Layers, Globe
+  Printer, Download, Copy, Check, FileText, Info, Cpu, Layers, Globe
 } from 'lucide-react';
 
 export default function AnalysisResult() {
@@ -77,17 +77,17 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-6">
+    <div className="max-w-5xl mx-auto py-3 sm:py-6">
       {/* Top Navigation & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <Link to="/history" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-dark transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Analysis History
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <Link to="/history" className="inline-flex items-center text-xs sm:text-sm font-medium text-gray-500 hover:text-dark transition-colors">
+          <ArrowLeft className="h-4 w-4 mr-1.5 shrink-0" /> Back to Analysis History
         </Link>
         
-        <div className="flex items-center space-x-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button 
             onClick={handleCopySummary}
-            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
             title="Copy Verification Summary"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-secondary" /> : <Copy className="h-3.5 w-3.5" />}
@@ -95,7 +95,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           </button>
           <button 
             onClick={handleDownloadJson}
-            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
             title="Download JSON Report"
           >
             <Download className="h-3.5 w-3.5" />
@@ -103,7 +103,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           </button>
           <button 
             onClick={handlePrint}
-            className="btn-secondary text-xs px-3.5 py-2 space-x-1.5"
+            className="btn-secondary text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 space-x-1.5"
             title="Print or Save PDF"
           >
             <Printer className="h-3.5 w-3.5" />
@@ -115,76 +115,76 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
       {/* Main Report Container */}
       <div className="glass-card overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-300">
         {/* Header Verdict Banner */}
-        <div className={`p-8 border-b ${statusColor} ${badgeBorder} flex flex-col md:flex-row md:items-center justify-between gap-6`}>
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-white rounded-2xl shadow-xs">
-              <VerdictIcon className="h-10 w-10" />
+        <div className={`p-5 sm:p-8 border-b ${statusColor} ${badgeBorder} flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6`}>
+          <div className="flex items-center space-x-3.5 sm:space-x-4">
+            <div className="p-2.5 sm:p-3 bg-white rounded-2xl shadow-xs shrink-0">
+              <VerdictIcon className="h-8 w-8 sm:h-10 sm:w-10" />
             </div>
             <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-black uppercase tracking-wider opacity-75">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider opacity-75">
                   {result.type} Verification Verdict
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-white/70">
+                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold bg-white/70">
                   {result.fileSize || 'Standard Input'}
                 </span>
               </div>
-              <h1 className="text-3xl font-black tracking-tight mt-0.5">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight mt-0.5">
                 {result.prediction}
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center space-x-6 bg-white/70 p-4 rounded-2xl border border-black/5">
+          <div className="flex items-center space-x-4 sm:space-x-6 bg-white/70 p-3 sm:p-4 rounded-2xl border border-black/5 self-start md:self-auto">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Confidence Score</p>
+              <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-gray-500">Confidence Score</p>
               <div className="flex items-baseline space-x-1">
-                <span className="text-3xl font-black text-dark">{result.confidence}</span>
-                <span className="text-lg font-bold text-gray-400">%</span>
+                <span className="text-2xl sm:text-3xl font-black text-dark">{result.confidence}</span>
+                <span className="text-base sm:text-lg font-bold text-gray-400">%</span>
               </div>
             </div>
-            <div className="w-16 h-16 rounded-full flex items-center justify-center border-4 border-current">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center border-4 border-current shrink-0">
               <span className="text-xs font-bold">{result.confidence}%</span>
             </div>
           </div>
         </div>
 
         {/* Content & Metadata Strip */}
-        <div className="p-8 border-b border-gray-100 bg-gray-50/40">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 sm:p-8 border-b border-gray-100 bg-gray-50/40">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">
+              <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">
                 Inspected Target
               </h3>
-              <p className="text-sm font-semibold text-dark font-mono bg-white p-3 rounded-xl border border-gray-200 truncate">
+              <p className="text-xs sm:text-sm font-semibold text-dark font-mono bg-white p-2.5 sm:p-3 rounded-xl border border-gray-200 break-all">
                 {result.fileNameOrContent}
               </p>
             </div>
             {result.modelUsed && (
-              <div className="shrink-0 bg-white p-3 rounded-xl border border-gray-200 text-xs">
+              <div className="shrink-0 bg-white p-2.5 sm:p-3 rounded-xl border border-gray-200 text-xs">
                 <div className="flex items-center space-x-1.5 text-primary font-bold mb-0.5">
-                  <Cpu className="h-3.5 w-3.5" />
+                  <Cpu className="h-3.5 w-3.5 shrink-0" />
                   <span>Model Engine</span>
                 </div>
-                <p className="text-gray-600 font-medium">{result.modelUsed}</p>
+                <p className="text-gray-600 font-medium truncate max-w-xs">{result.modelUsed}</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* ELA Visual Map if Image */}
           {result.elaImage && (
-            <div className="p-6 rounded-2xl bg-purple-50/40 border border-purple-100">
-              <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-4">
-                <Layers className="h-4 w-4 text-purple-600" />
+            <div className="p-4 sm:p-6 rounded-2xl bg-purple-50/40 border border-purple-100">
+              <div className="flex items-center space-x-2 text-xs sm:text-sm font-bold text-dark mb-4">
+                <Layers className="h-4 w-4 text-purple-600 shrink-0" />
                 <span>Error Level Analysis (ELA) Compression Heatmap</span>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="bg-black rounded-xl overflow-hidden border border-gray-200 max-w-[260px] shrink-0">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                <div className="bg-black rounded-xl overflow-hidden border border-gray-200 w-full sm:max-w-[260px] shrink-0">
                   <img src={result.elaImage} alt="ELA Map" className="w-full h-auto object-contain" />
                 </div>
-                <div className="text-xs text-gray-600 space-y-2">
+                <div className="text-xs text-gray-600 space-y-2 flex-1">
                   <p className="font-bold text-dark">How to interpret this ELA visualization:</p>
                   <p>
                     Brighter regions with high local contrast signify areas of differing JPEG compression quality. In authentic photos, compression noise is uniform throughout. Spliced or AI-inpainted elements show distinct error energy peaks.
@@ -199,21 +199,21 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
 
           {/* Forensic Breakdown Meters */}
           <div>
-            <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-5">
-              <BarChart2 className="h-4 w-4 text-primary" />
+            <div className="flex items-center space-x-2 text-xs sm:text-sm font-bold text-dark mb-4 sm:mb-5">
+              <BarChart2 className="h-4 w-4 text-primary shrink-0" />
               <span>Multi-Axis Indicator Breakdown</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {Object.entries(result.resultDetails || {}).map(([key, value]) => {
                 const numericVal = parseInt(value) || 50;
                 return (
-                  <div key={key} className="bg-surface rounded-xl p-4 border border-gray-200">
+                  <div key={key} className="bg-surface rounded-xl p-3.5 sm:p-4 border border-gray-200">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      <span className="text-[11px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider truncate pr-2">
                         {key.replace(/_/g, ' ')}
                       </span>
-                      <span className="text-xs font-black text-dark">{value}</span>
+                      <span className="text-xs font-black text-dark shrink-0">{value}</span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                       <div
@@ -236,12 +236,12 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           {/* Key Findings / Algorithmic Observations */}
           {result.findings && result.findings.length > 0 && (
             <div className="pt-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+              <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
                 Key Forensic Observations
               </h4>
-              <div className="space-y-2.5">
+              <div className="space-y-2 sm:space-y-2.5">
                 {result.findings.map((finding, idx) => (
-                  <div key={idx} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
+                  <div key={idx} className="flex items-start space-x-2.5 sm:space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
                     <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     <span className="text-gray-700 font-medium leading-relaxed">{finding}</span>
                   </div>
@@ -253,8 +253,8 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           {/* Extracted Fact-Check Claims */}
           {result.claims && result.claims.length > 0 && (
             <div className="pt-2">
-              <div className="flex items-center space-x-2 text-sm font-bold text-dark mb-4">
-                <Globe className="h-4 w-4 text-primary" />
+              <div className="flex items-center space-x-2 text-xs sm:text-sm font-bold text-dark mb-4">
+                <Globe className="h-4 w-4 text-primary shrink-0" />
                 <span>Google Search Grounding & Fact-Check Verification</span>
               </div>
               <div className="space-y-3">
@@ -268,14 +268,14 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
                     : 'bg-amber-100 text-amber-700 border-amber-200';
                     
                   return (
-                    <div key={idx} className="p-4 bg-white rounded-xl border border-gray-200 shadow-xs flex flex-col space-y-3">
-                      <div className="flex justify-between items-start gap-4">
-                        <p className="text-sm font-bold text-dark leading-snug">"{item.claim}"</p>
-                        <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md border shrink-0 ${badgeColor}`}>
+                    <div key={idx} className="p-3.5 sm:p-4 bg-white rounded-xl border border-gray-200 shadow-xs flex flex-col space-y-2.5 sm:space-y-3">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <p className="text-xs sm:text-sm font-bold text-dark leading-snug">"{item.claim}"</p>
+                        <span className={`px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md border shrink-0 ${badgeColor}`}>
                           {item.status}
                         </span>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-700 border border-gray-100 flex items-start space-x-2">
+                      <div className="bg-gray-50 rounded-lg p-2.5 sm:p-3 text-xs text-gray-700 border border-gray-100 flex items-start space-x-2">
                         <Info className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                         <span>{item.evidence}</span>
                       </div>
@@ -287,7 +287,7 @@ Verified at: ${new Date(result.createdAt || Date.now()).toLocaleString()}`;
           )}
 
           {/* Enterprise Disclaimer Footer */}
-          <div className="p-4 rounded-xl bg-gray-50 flex items-start space-x-3 border border-gray-200 text-xs text-gray-500">
+          <div className="p-3.5 sm:p-4 rounded-xl bg-gray-50 flex items-start space-x-3 border border-gray-200 text-xs text-gray-500">
             <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               This forensic evaluation was compiled autonomously by TruthLens Enterprise. While high algorithmic confidence is achieved via neural ensembles, critical legal and journalistic evidence should be cross-verified alongside chain-of-custody documentation.

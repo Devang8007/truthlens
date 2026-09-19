@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { Video, UploadCloud, Loader2, AlertCircle, Sparkles, Play, X, Film } from 'lucide-react';
+import { UploadCloud, Loader2, AlertCircle, Sparkles, Play, X, Film } from 'lucide-react';
 import api from '../../api';
 
 export default function VideoModule() {
@@ -76,56 +76,56 @@ export default function VideoModule() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="mb-8 animate-in fade-in slide-in-from-top-4">
-        <div className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold mb-3">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Spatial-Temporal Facial Micro-Anomaly Detection</span>
+    <div className="max-w-4xl mx-auto py-3 sm:py-6">
+      <div className="mb-6 sm:mb-8 animate-in fade-in slide-in-from-top-4">
+        <div className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold mb-2.5 sm:mb-3">
+          <Sparkles className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">Spatial-Temporal Facial Micro-Anomaly Detection</span>
         </div>
-        <h1 className="text-3xl font-black text-dark tracking-tight mb-2">Deepfake Video Verification</h1>
-        <p className="text-sm text-gray-500">Upload video footage to identify face-swaps, synthetic lip-sync, and AI avatar manipulation.</p>
+        <h1 className="text-2xl sm:text-3xl font-black text-dark tracking-tight mb-2">Deepfake Video Verification</h1>
+        <p className="text-xs sm:text-sm text-gray-500">Upload video footage to identify face-swaps, synthetic lip-sync, and AI avatar manipulation.</p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-xl flex items-center text-danger max-w-3xl">
+        <div className="mb-6 p-3.5 sm:p-4 bg-danger/10 border border-danger/20 rounded-xl flex items-center text-danger max-w-3xl text-xs sm:text-sm">
           <AlertCircle className="h-5 w-5 mr-2.5 shrink-0" />
-          <p className="text-sm font-medium">{error}</p>
+          <p className="font-medium">{error}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 mb-8">
         {/* Upload & Video Preview Card */}
         <div className="lg:col-span-2">
           {!previewUrl ? (
             <div 
               {...getRootProps()} 
-              className={`glass-card p-12 flex flex-col items-center justify-center text-center cursor-pointer border-2 border-dashed transition-all duration-300 min-h-[340px] ${
+              className={`glass-card p-6 sm:p-12 flex flex-col items-center justify-center text-center cursor-pointer border-2 border-dashed transition-all duration-300 min-h-[260px] sm:min-h-[340px] ${
                 isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary/50 hover:bg-gray-50/50'
               }`}
             >
               <input {...getInputProps()} />
-              <div className="bg-primary/10 p-4 rounded-2xl text-primary mb-5 shadow-xs">
-                <UploadCloud className="h-10 w-10" />
+              <div className="bg-primary/10 p-3.5 sm:p-4 rounded-2xl text-primary mb-4 sm:mb-5 shadow-xs">
+                <UploadCloud className="h-8 w-8 sm:h-10 sm:w-10" />
               </div>
               
               {isDragActive ? (
-                <p className="text-lg font-bold text-primary mb-1">Drop the video here to verify</p>
+                <p className="text-base sm:text-lg font-bold text-primary mb-1">Drop the video here to verify</p>
               ) : (
                 <>
-                  <p className="text-lg font-bold text-dark mb-1">
-                    Drag and drop your video file here
+                  <p className="text-base sm:text-lg font-bold text-dark mb-1">
+                    Tap to select or drag and drop video
                   </p>
-                  <p className="text-sm text-gray-500 mb-4">or click to browse files from your computer</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-4">Supports MP4, MOV, AVI, MKV up to 100 MB</p>
                 </>
               )}
-              <span className="text-xs font-semibold text-gray-400 px-3 py-1 bg-gray-100 rounded-full">
-                MP4, MOV, AVI, MKV · Up to 100 MB
+              <span className="text-[11px] sm:text-xs font-semibold text-gray-400 px-3 py-1 bg-gray-100 rounded-full">
+                Encrypted & Processed Securely
               </span>
             </div>
           ) : (
-            <div className="glass-card p-6">
+            <div className="glass-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-                <div className="flex items-center space-x-2 text-dark font-bold text-sm">
+                <div className="flex items-center space-x-2 text-dark font-bold text-xs sm:text-sm">
                   <Film className="h-4 w-4 text-primary" />
                   <span>Video Footage Preview</span>
                 </div>
@@ -140,20 +140,20 @@ export default function VideoModule() {
                 )}
               </div>
 
-              <div className="relative rounded-xl overflow-hidden bg-black max-h-[340px] flex items-center justify-center border border-gray-200">
+              <div className="relative rounded-xl overflow-hidden bg-black max-h-[280px] sm:max-h-[340px] flex items-center justify-center border border-gray-200">
                 <video 
                   src={previewUrl} 
                   controls 
-                  className="max-h-[320px] w-full object-contain"
+                  className="max-h-[260px] sm:max-h-[320px] w-full object-contain"
                 />
               </div>
 
-              <div className="mt-4 flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
-                <div>
-                  <p className="font-bold text-dark truncate max-w-xs">{file?.name}</p>
+              <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
+                <div className="min-w-0">
+                  <p className="font-bold text-dark truncate max-w-full sm:max-w-xs">{file?.name}</p>
                   <p className="text-gray-400 mt-0.5">{(file?.size / (1024 * 1024)).toFixed(2)} MB</p>
                 </div>
-                <span className="px-2.5 py-1 bg-primary/10 text-primary font-bold rounded-lg text-[11px]">
+                <span className="px-2.5 py-1 bg-primary/10 text-primary font-bold rounded-lg text-[11px] self-start sm:self-auto">
                   Ready to Inspect
                 </span>
               </div>
@@ -161,8 +161,8 @@ export default function VideoModule() {
               {loading && (
                 <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/15 animate-in fade-in">
                   <div className="flex items-center space-x-3 mb-2">
-                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                    <p className="text-sm font-bold text-dark">{scanSteps[scanStep]}</p>
+                    <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0" />
+                    <p className="text-xs sm:text-sm font-bold text-dark">{scanSteps[scanStep]}</p>
                   </div>
                   <div className="w-full bg-primary/20 rounded-full h-1.5 overflow-hidden">
                     <div 
@@ -177,7 +177,7 @@ export default function VideoModule() {
                 <button
                   onClick={handleAnalyze}
                   disabled={loading || !file}
-                  className="btn-primary space-x-2"
+                  className="btn-primary w-full sm:w-auto space-x-2 justify-center"
                 >
                   {loading ? (
                     <>
@@ -197,16 +197,16 @@ export default function VideoModule() {
         </div>
 
         {/* Video Forensic Capabilities Card */}
-        <div className="space-y-6">
-          <div className="glass-card p-6">
-            <h3 className="text-sm font-bold text-dark uppercase tracking-wider mb-4">Inspection Vectors</h3>
+        <div className="space-y-4 sm:space-y-6">
+          <div className="glass-card p-5 sm:p-6">
+            <h3 className="text-xs sm:text-sm font-bold text-dark uppercase tracking-wider mb-4">Inspection Vectors</h3>
             
-            <div className="space-y-4 text-xs">
+            <div className="space-y-3.5 sm:space-y-4 text-xs">
               <div className="flex items-start space-x-3">
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />
                 <div>
                   <p className="font-bold text-dark">Facial Boundary Tracking</p>
-                  <p className="text-gray-500">Detects blending anomalies where swapped faces meet natural jawline & hair.</p>
+                  <p className="text-gray-500 mt-0.5">Detects blending anomalies where swapped faces meet natural jawline & hair.</p>
                 </div>
               </div>
 
@@ -214,7 +214,7 @@ export default function VideoModule() {
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />
                 <div>
                   <p className="font-bold text-dark">Audio-Visual Sync (Visemes)</p>
-                  <p className="text-gray-500">Measures sub-50ms acoustic vs lip synchronization latency to catch audio clones.</p>
+                  <p className="text-gray-500 mt-0.5">Measures sub-50ms acoustic vs lip synchronization latency to catch audio clones.</p>
                 </div>
               </div>
 
@@ -222,13 +222,13 @@ export default function VideoModule() {
                 <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />
                 <div>
                   <p className="font-bold text-dark">Temporal Jitter Analysis</p>
-                  <p className="text-gray-500">Flags frame-to-frame lighting flicker and unnatural eye blink intervals.</p>
+                  <p className="text-gray-500 mt-0.5">Flags frame-to-frame lighting flicker and unnatural eye blink intervals.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="glass-card p-5 bg-gradient-to-br from-blue-50/50 to-white border-blue-100">
+          <div className="glass-card p-4 sm:p-5 bg-gradient-to-br from-blue-50/50 to-white border-blue-100">
             <p className="text-xs font-bold text-primary mb-1">Enterprise Standard</p>
             <p className="text-[11px] text-gray-600 leading-relaxed">
               Trained across FaceForensics++, DFDC (Deepfake Detection Challenge), and Celeb-DF benchmark datasets.

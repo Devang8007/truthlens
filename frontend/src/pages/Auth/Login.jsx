@@ -32,26 +32,26 @@ export default function Login({ setUser }) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 bg-background">
-      <div className="glass-card w-full max-w-md p-8 animate-in fade-in zoom-in duration-500">
-        <div className="flex flex-col items-center mb-8">
-          <div className="p-3 bg-primary/10 rounded-full text-primary mb-4">
-            <Shield className="h-8 w-8" />
+    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-3.5 sm:px-4 py-8 bg-background">
+      <div className="glass-card w-full max-w-md p-6 sm:p-8 animate-in fade-in zoom-in duration-500">
+        <div className="flex flex-col items-center mb-6 sm:mb-8 text-center">
+          <div className="p-3 bg-primary/10 rounded-2xl text-primary mb-3 sm:mb-4 shadow-xs">
+            <Shield className="h-7 w-7 sm:h-8 sm:w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-dark">Welcome back</h2>
-          <p className="text-gray-500 mt-2">Enter your details to access your account</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-dark">Welcome back</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Enter your details to access your account</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-lg flex items-center text-danger">
-            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
-            <p className="text-sm">{error}</p>
+          <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 bg-danger/10 border border-danger/20 rounded-xl flex items-center text-danger text-xs sm:text-sm">
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+            <p>{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Email Address</label>
+            <label className="block text-xs sm:text-sm font-semibold text-dark mb-1.5 sm:mb-2">Email Address</label>
             <input
               type="email"
               name="email"
@@ -64,7 +64,7 @@ export default function Login({ setUser }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-dark mb-2">Password</label>
+            <label className="block text-xs sm:text-sm font-semibold text-dark mb-1.5 sm:mb-2">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -93,15 +93,15 @@ export default function Login({ setUser }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary flex justify-center items-center h-12"
+            className="w-full btn-primary flex justify-center items-center h-11 sm:h-12 text-sm sm:text-base font-semibold"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Sign In'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-gray-500 text-sm">
+        <p className="mt-5 sm:mt-6 text-center text-gray-500 text-xs sm:text-sm">
           Don't have an account?{' '}
-          <Link to="/register" className="text-primary hover:text-primary-dark font-medium transition-colors">
+          <Link to="/register" className="text-primary hover:text-primary-dark font-semibold transition-colors">
             Sign up
           </Link>
         </p>
