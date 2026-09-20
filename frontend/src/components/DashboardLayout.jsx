@@ -17,7 +17,7 @@ export default function DashboardLayout({ children, user, setUser }) {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-background relative w-full max-w-full overflow-x-hidden">
       {/* Desktop Sidebar & Mobile Drawer */}
       <Sidebar 
         user={user} 
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children, user, setUser }) {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0 w-full transition-all duration-300">
+      <div className="flex flex-col min-h-screen min-w-0 w-full lg:pl-64 transition-all duration-300">
         <Topbar 
           user={user} 
           onMenuToggle={() => setSidebarOpen(prev => !prev)} 

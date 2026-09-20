@@ -79,11 +79,11 @@ export default function Topbar({ user, onMenuToggle }) {
 
       {/* Right Actions: Mobile Search Toggle + Notifications + Profile */}
       <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
-        {/* Mobile Search Button (< sm) */}
+        {/* Mobile Search Button (< md) */}
         <button
           onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
           aria-label="Search"
-          className="sm:hidden p-2 rounded-xl text-gray-500 hover:text-dark hover:bg-gray-100 transition-colors"
+          className="md:hidden p-2 rounded-xl text-gray-500 hover:text-dark hover:bg-gray-100 transition-colors"
         >
           <Search className="h-5 w-5" />
         </button>
@@ -146,9 +146,9 @@ export default function Topbar({ user, onMenuToggle }) {
         </Link>
       </div>
 
-      {/* Mobile Search Overlay (< sm) */}
+      {/* Mobile Search Overlay (< md) */}
       {mobileSearchOpen && (
-        <div className="sm:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 p-3 shadow-md z-30 animate-in slide-in-from-top-2 duration-150">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 p-3 shadow-md z-30 animate-in slide-in-from-top-2 duration-150">
           <form onSubmit={handleSearchSubmit} className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input

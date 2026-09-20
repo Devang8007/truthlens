@@ -16,6 +16,14 @@ import api from './api';
 import { Loader2 } from 'lucide-react';
 import HowItWorks from './pages/HowItWorks';
 
+// Protected Route Component
+function ProtectedRoute({ user, setUser, children }) {
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return <DashboardLayout user={user} setUser={setUser}>{children}</DashboardLayout>;
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,14 +54,6 @@ function App() {
     );
   }
 
-  // Protected Route Component
-  const ProtectedRoute = ({ children }) => {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
-    return <DashboardLayout user={user} setUser={setUser}>{children}</DashboardLayout>;
-  };
-
   return (
     <Router>
       <div className="min-h-screen bg-background text-dark font-sans selection:bg-primary/20">
@@ -65,15 +65,15 @@ function App() {
           <Route path="/register" element={!user ? <><Navbar user={user} setUser={setUser} /><Register setUser={setUser} /></> : <Navigate to="/dashboard" />} />
           
           {/* Authenticated Routes */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard user={user} /></ProtectedRoute>} />
-          <Route path="/modules/video" element={<ProtectedRoute><VideoModule /></ProtectedRoute>} />
-          <Route path="/modules/image" element={<ProtectedRoute><ImageModule /></ProtectedRoute>} />
-          <Route path="/modules/news" element={<ProtectedRoute><NewsModule /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute user={user} setUser={setUser}><Dashboard user={user} /></ProtectedRoute>} />
+          <Route path="/modules/video" element={<ProtectedRoute user={user} setUser={setUser}><VideoModule /></ProtectedRoute>} />
+          <Route path="/modules/image" element={<ProtectedRoute user={user} setUser={setUser}><ImageModule /></ProtectedRoute>} />
+          <Route path="/modules/news" element={<ProtectedRoute user={user} setUser={setUser}><NewsModule /></ProtectedRoute>} />
           <Route path="/detection" element={<Navigate to="/modules/video" replace />} />
           <Route path="/modules" element={<Navigate to="/modules/video" replace />} />
-          <Route path="/results" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
-          <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings user={user} setUser={setUser} /></ProtectedRoute>} />
+          <Route path="/results" element={<ProtectedRoute user={user} setUser={setUser}><AnalysisResult /></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute user={user} setUser={setUser}><History /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute user={user} setUser={setUser}><Settings user={user} setUser={setUser} /></ProtectedRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -42,8 +42,8 @@ export default function Sidebar({ user: _user, setUser, isOpen, setIsOpen }) {
       <aside 
         className={`bg-surface border-r border-gray-200 h-screen select-none ${
           isOpen 
-            ? 'fixed inset-y-0 left-0 w-72 max-w-[85vw] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left duration-200' 
-            : 'hidden lg:flex lg:flex-col lg:fixed lg:left-0 lg:top-0 lg:w-64 lg:shadow-none'
+            ? 'fixed inset-y-0 left-0 w-72 max-w-[85vw] flex flex-col z-50 shadow-2xl animate-in slide-in-from-left duration-200 lg:w-64 lg:shadow-none lg:z-30' 
+            : 'hidden lg:flex lg:flex-col lg:fixed lg:left-0 lg:top-0 lg:w-64 lg:shadow-none lg:z-30'
         }`}
       >
         <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
